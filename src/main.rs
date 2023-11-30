@@ -15,7 +15,6 @@ struct FolderMapper{
     path: String,
     read_only: bool
 }
-//TODO: check how to use options
 struct Config
 {
     folder_mappers: Vec<FolderMapper>,
