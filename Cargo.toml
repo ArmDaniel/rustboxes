@@ -1,0 +1,11 @@
+[package]
+name = "Rustboxes"
+version = "0.1.0"
+edition = "2023"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+wmi = { version = "0.13.1" }
+tempfile = { version = "3.8.1" }
+xml-rs = { version = "0.8.19" }

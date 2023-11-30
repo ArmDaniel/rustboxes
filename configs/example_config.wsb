@@ -1,0 +1,20 @@
+<Configuration>
+    <!-- Map a host folder to the sandbox (read-only) -->
+    <MappedFolders>
+        <MappedFolder>
+            <HostFolder>C:\temporary_wsb</HostFolder>
+            <ReadOnly>true</ReadOnly>
+        </MappedFolder>
+    </MappedFolders>
+
+    <!-- Enable or disable vGPU (virtualized GPU) -->
+    <VGpu>Disable</VGpu>
+
+    <!-- Enable or disable networking -->
+    <Networking>Disable</Networking>
+
+    <!-- Logon command that runs when the sandbox starts -->
+    <LogonCommand>
+        <Command>explorer.exe C:\Users\WDAGUtilityAccount\Desktop\MappedFolder</Command>
+    </LogonCommand>
+</Configuration>
