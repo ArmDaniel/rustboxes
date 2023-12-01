@@ -3,7 +3,7 @@ mod sandbox;
 
 use wmi::{COMLibrary, Variant, WMIConnection};
 use std::collections::HashMap;
-use crate::sandbox::{OfflineSandbox, OfflineSession, OnlineSandbox};
+use crate::sandbox::{Config, OfflineSandbox, OfflineSession, OnlineSandbox};
 
 const FEATURE_WINDOWS_SANDBOX: &str =
 "Containers-DisposableClientVM";
@@ -11,17 +11,8 @@ const FEATURE_QUERY: &str =
     "SELECT * FROM Win32_OptionalFeature";
 const ENABLED_STATE: u32 = 1;
 
-struct FolderMapper{
-    path: String,
-    read_only: bool
-}
-struct Config
-{
-    folder_mappers: Vec<FolderMapper>,
-    networking: bool,
-    logon_script: String,
-    virtual_gpu: bool
-}
+
+
 
 fn check_feature(os: &HashMap<String, Variant>) {
     match (os.get("Name"), os.get("InstallState")) {
@@ -53,29 +44,13 @@ fn main() {
 
     com_wmi_connection().expect("Failed to fetch WSB info.");
 
-    let config = Config {
-        folder_mappers: Vec::new(),
-        networking: false,
-        logon_script: String::new(),
-        virtual_gpu: false,
-    };
+    let config = Config::default();
 
-
-    if config.networking == false
+    if !config.networking
     {
-        let sdb = OfflineSandbox{
-            config
-        };
-        let offline_ses = OfflineSession {
-            sandbox: sdb
-        };
+        let sdb = OfflineSandbox { config };
+        let offline_ses = OfflineSession {  sandbox: sdb };
         offline_ses.run();
     }
-    else {
-        let sdb = OnlineSandbox
-        {
-            config,
-            launch_new_instance: false,
-        };
-    }
+
 }

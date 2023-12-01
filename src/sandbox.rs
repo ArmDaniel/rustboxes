@@ -3,22 +3,37 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
 use tempfile::NamedTempFile;
-use crate::{Config, FolderMapper};
 use xml::writer::{EmitterConfig, EventWriter, XmlEvent};
 
 const WINDOWS_SANDBOX_CONFIG_FILE_SUFFIX: &str = ".wsb";
+const CMD: &str = "cmd";
+const FLAG_CMD: &str = "/C";
+const START_CMD: &str = "start";
 
-pub(crate) struct OfflineSandbox { pub(crate) config: Config, }
-pub(crate) struct OnlineSandbox {
-    pub(crate) config: Config,
-    pub(crate) launch_new_instance: bool,
+pub struct FolderMapper{
+    path: String,
+    read_only: bool
 }
-pub(crate) struct OfflineSession {
-    pub(crate) sandbox : OfflineSandbox
+#[derive(Default)]
+pub struct Config
+{
+    folder_mappers: Vec<FolderMapper>,
+    pub networking: bool,
+    logon_script: String,
+    virtual_gpu: bool
+}
+
+pub struct OfflineSandbox { pub config: Config, }
+pub struct OnlineSandbox {
+    pub config: Config,
+    pub launch_new_instance: bool,
+}
+pub struct OfflineSession {
+    pub sandbox : OfflineSandbox
 }
 
 impl OfflineSession {
-    pub(crate) fn run(&self){
+    pub fn run(&self){
         let config_file = generate_config_file(&self.sandbox.config);
 
         let mut temp_file = NamedTempFile::new().expect("Failed to create temporary file.");
@@ -32,6 +47,15 @@ impl OfflineSession {
             .expect("Failed to write to config file");
 
         OfflineSandbox::start_sandbox(&self.sandbox, config_file_path.to_str().unwrap());
+    }
+}
+impl OfflineSandbox {
+    pub fn start_sandbox(&self,config_file_path: &str){
+
+        Command::new(CMD)
+            .args(&[FLAG_CMD,START_CMD,config_file_path])
+            .spawn()
+            .expect("Failed to start sandbox");
     }
 }
 
@@ -82,14 +106,4 @@ fn generate_config_file(config: &Config) -> String {
     writer.write(XmlEvent::end_element()).unwrap(); // Configuration
 
     String::from_utf8(buffer).unwrap()
-}
-
-impl OfflineSandbox {
-    pub(crate) fn start_sandbox(&self,config_file_path: &str){
-
-        Command::new("cmd")
-            .args(&["/C","start",config_file_path])
-            .spawn()
-            .expect("Failed to start sandbox");
-    }
 }
